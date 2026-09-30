@@ -1,1224 +1,151 @@
 <!DOCTYPE html>
-<html lang="en" class="dark scroll-smooth">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>iTantra • Neural Transceiver Radio Access</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        darkBg: '#030712',
-                        cardBg: '#0f172a',
-                        borderSlate: '#1e293b',
-                        neonCyan: '#06b6d4',
-                        neonEmerald: '#10b981',
-                        neonPurple: '#8b5cf6',
-                        neonAmber: '#f59e0b'
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        mono: ['Space Grotesk', 'monospace']
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Three.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <style>
-        /* Custom scrollbar and glassmorphism helpers */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #030712;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #1e293b;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #334155;
-        }
-        .glass-panel {
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(30, 41, 59, 0.8);
-        }
-        .glass-glow {
-            box-shadow: 0 0 30px rgba(6, 182, 212, 0.15);
-        }
-        .text-glow {
-            text-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
-        }
-        canvas {
-            display: block;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iTantra | Offline Communication</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Arial, sans-serif;
+      background:
+        radial-gradient(circle at top, #123b52 0%, #07121c 45%, #03070b 100%);
+      color: white;
+      padding: 20px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 560px;
+      text-align: center;
+      padding: 45px 28px;
+      border: 1px solid rgba(0, 220, 255, 0.25);
+      border-radius: 28px;
+      background: rgba(7, 18, 28, 0.82);
+      backdrop-filter: blur(15px);
+      box-shadow: 0 0 50px rgba(0, 200, 255, 0.12);
+    }
+
+    .logo {
+      width: 90px;
+      height: 90px;
+      margin: 0 auto 20px;
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 42px;
+      font-weight: bold;
+      background: linear-gradient(135deg, #00d9ff, #0066ff);
+      box-shadow: 0 0 35px rgba(0, 210, 255, 0.35);
+    }
+
+    h1 {
+      font-size: 42px;
+      margin-bottom: 10px;
+      letter-spacing: 1px;
+    }
+
+    .tagline {
+      color: #a9c7d8;
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 17px 20px;
+      margin: 14px 0;
+      border-radius: 14px;
+      text-decoration: none;
+      font-size: 17px;
+      font-weight: bold;
+      transition: 0.25s;
+    }
+
+    .web {
+      color: white;
+      background: linear-gradient(90deg, #0077ff, #00bfff);
+    }
+
+    .youtube {
+      color: white;
+      background: linear-gradient(90deg, #e60000, #ff3030);
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(0, 200, 255, 0.22);
+    }
+
+    .info {
+      margin-top: 28px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      color: #78909c;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .footer {
+      margin-top: 22px;
+      color: #4e6875;
+      font-size: 12px;
+    }
+  </style>
 </head>
-<body class="bg-darkBg text-slate-100 font-sans antialiased overflow-x-hidden selection:bg-cyan-500 selection:text-black">
 
-    <!-- Header / Navigation -->
-    <header class="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-borderSlate/80 transition-all duration-300">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            <!-- Branding -->
-            <a href="#" class="flex items-center space-x-3 group">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-purple-600 p-0.5 shadow-lg shadow-cyan-500/20 group-hover:scale-105 transition-transform">
-                    <div class="w-full h-full bg-darkBg rounded-[10px] flex items-center justify-center">
-                        <i class="fa-solid fa-tower-broadcast text-cyan-400 text-lg"></i>
-                    </div>
-                </div>
-                <div>
-                    <span class="text-xl font-bold font-mono tracking-wider bg-gradient-to-r from-cyan-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent">iTantra</span>
-                    <span class="block text-[10px] text-slate-400 tracking-widest uppercase font-mono">Neural Transceiver</span>
-                </div>
-            </a>
+<body>
 
-            <!-- Desktop Nav Links -->
-            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium">
-                <a href="#overview" class="text-slate-300 hover:text-cyan-400 transition-colors">Overview</a>
-                <a href="#sandbox" class="text-slate-300 hover:text-cyan-400 transition-colors">Neural Codec</a>
-                <a href="#spectrum" class="text-slate-300 hover:text-cyan-400 transition-colors">Link Analyzer</a>
-                <a href="#architecture" class="text-slate-300 hover:text-cyan-400 transition-colors">Architecture</a>
-                <a href="#scenarios" class="text-slate-300 hover:text-cyan-400 transition-colors">Deployments</a>
-                <a href="#roadmap" class="text-slate-300 hover:text-cyan-400 transition-colors">Roadmap</a>
-            </nav>
+  <div class="card">
 
-            <!-- Right Status & Action -->
-            <div class="hidden lg:flex items-center space-x-4">
-                <div class="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 text-xs font-mono">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                    <span>2.4 KBPS SECURE LINK</span>
-                </div>
-                <a href="#sandbox" class="px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-black font-semibold text-xs tracking-wider uppercase hover:opacity-90 transition-opacity shadow-lg shadow-cyan-500/25">
-                    Launch Simulator
-                </a>
-            </div>
+    <div class="logo">iT</div>
 
-            <!-- Mobile Menu Toggle -->
-            <button id="mobile-menu-btn" class="md:hidden text-slate-300 hover:text-white focus:outline-none p-2">
-                <i class="fa-solid fa-bars text-xl"></i>
-            </button>
-        </div>
+    <h1>iTantra</h1>
 
-        <!-- Mobile Menu Dropdown -->
-        <div id="mobile-menu" class="hidden md:hidden glass-panel border-t border-borderSlate px-4 pt-2 pb-6 space-y-3">
-            <a href="#overview" class="block py-2 text-slate-300 hover:text-cyan-400">Overview</a>
-            <a href="#sandbox" class="block py-2 text-slate-300 hover:text-cyan-400">Neural Codec</a>
-            <a href="#spectrum" class="block py-2 text-slate-300 hover:text-cyan-400">Link Analyzer</a>
-            <a href="#architecture" class="block py-2 text-slate-300 hover:text-cyan-400">Architecture</a>
-            <a href="#scenarios" class="block py-2 text-slate-300 hover:text-cyan-400">Deployments</a>
-            <a href="#roadmap" class="block py-2 text-slate-300 hover:text-cyan-400">Roadmap</a>
-            <div class="pt-2 flex items-center justify-between">
-                <span class="text-xs text-emerald-400 font-mono flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> 2.4 kbps Active</span>
-                <a href="#sandbox" class="px-3 py-1.5 rounded bg-cyan-500 text-black text-xs font-bold">Simulator</a>
-            </div>
-        </div>
-    </header>
+    <p class="tagline">
+      Offline Phone-to-Phone Communication<br>
+      Connect • Communicate • Anywhere
+    </p>
 
-    <!-- Hero Section -->
-    <section class="relative min-h-screen flex items-center justify-center pt-24 pb-16 overflow-hidden">
-        <!-- 3D Three.js Container Background -->
-        <div id="hero-canvas-container" class="absolute inset-0 z-0 opacity-60 pointer-events-none"></div>
-        <div class="absolute inset-0 bg-gradient-to-b from-darkBg/40 via-darkBg/80 to-darkBg z-0"></div>
+    <a
+      class="btn web"
+      href="https://akyaanarvekar.github.io/iTantra_website/"
+      target="_blank"
+    >
+      🌐 Open iTantra Web Demo
+    </a>
 
-        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-center lg:text-left grid lg:grid-cols-12 gap-12 items-center">
-           
-            <!-- Hero Left Content -->
-            <div class="lg:col-span-7 space-y-8">
-                <!-- Tactical Badge -->
-                <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-cyan-950/60 border border-cyan-500/40 text-cyan-400 text-xs font-mono backdrop-blur-md">
-                    <i class="fa-solid fa-shield-halved text-cyan-400"></i>
-                    <span>SMART INDIA HACKATHON 2026 • DEFENSE & SECURITY TECH</span>
-                </div>
+    <a
+      class="btn youtube"
+      href="https://youtube.com/@itantra?si=quilxZh0alz0CNnU"
+      target="_blank"
+    >
+      ▶️ Watch iTantra Demo
+    </a>
 
-                <!-- Main Headline -->
-                <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight font-sans leading-tight">
-                    iTantra • <span class="bg-gradient-to-r from-cyan-400 via-teal-300 to-purple-500 bg-clip-text text-transparent text-glow">Next-Gen Neural Transceiver</span>
-                </h1>
-
-                <!-- Subtitle -->
-                <p class="text-lg sm:text-xl text-slate-300 max-w-2xl font-light leading-relaxed">
-                    Indian Multilingual Text-to-Speech (TTS) & Speech-to-Text (STT) Aided Neural Transceiver for ultra-low bitrate tactical tactical links (1.2 - 4.8 kbps) in extreme remote & border environments.
-                </p>
-
-                <!-- Primary and Secondary CTAs -->
-                <div class="flex flex-wrap gap-4 justify-center lg:justify-start">
-                    <a href="#sandbox" class="px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-500 via-teal-500 to-blue-600 text-black font-bold text-sm tracking-wide uppercase hover:scale-105 transition-transform shadow-xl shadow-cyan-500/30 flex items-center space-x-3">
-                        <i class="fa-solid fa-play"></i>
-                        <span>Launch Simulator</span>
-                    </a>
-                    <a href="#architecture" class="px-8 py-4 rounded-xl glass-panel text-slate-200 font-semibold text-sm tracking-wide uppercase hover:border-cyan-500/50 transition-colors flex items-center space-x-3">
-                        <i class="fa-solid fa-microchip text-cyan-400"></i>
-                        <span>Explore Architecture</span>
-                    </a>
-                </div>
-
-                <!-- Quick specs tags -->
-                <div class="pt-4 grid grid-cols-3 gap-4 border-t border-slate-800/80 max-w-lg">
-                    <div>
-                        <div class="text-2xl font-bold font-mono text-cyan-400">1.2 - 4.8</div>
-                        <div class="text-xs text-slate-400">kbps Bitrate</div>
-                    </div>
-                    <div>
-                        <div class="text-2xl font-bold font-mono text-purple-400">12+</div>
-                        <div class="text-xs text-slate-400">Indic Languages</div>
-                    </div>
-                    <div>
-                        <div class="text-2xl font-bold font-mono text-emerald-400">&lt;150ms</div>
-                        <div class="text-xs text-slate-400">Latency Core</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Hero Right Visual Card -->
-            <div class="lg:col-span-5 relative">
-                <div class="absolute -inset-1 rounded-3xl bg-gradient-to-r from-cyan-500 via-purple-600 to-emerald-500 opacity-30 blur-xl animate-pulse"></div>
-                <div class="relative glass-panel rounded-2xl p-6 border border-slate-700 shadow-2xl space-y-6">
-                    <div class="flex items-center justify-between border-b border-slate-700/80 pb-4">
-                        <div class="flex items-center space-x-3">
-                            <span class="w-3 h-3 rounded-full bg-cyan-400 animate-ping"></span>
-                            <span class="font-mono text-sm font-semibold tracking-wider text-cyan-300">TACTICAL NODE #704</span>
-                        </div>
-                        <span class="px-2 py-0.5 rounded bg-slate-800 text-xs font-mono text-slate-400">SECURE-AES</span>
-                    </div>
-
-                    <!-- Interactive Codec Status Widget -->
-                    <div class="space-y-4 font-mono text-xs">
-                        <div class="bg-darkBg/80 p-3 rounded-lg border border-slate-800 space-y-2">
-                            <div class="flex justify-between text-slate-400">
-                                <span>CODEC STATUS:</span>
-                                <span class="text-emerald-400 font-bold">ACTIVE (Neural VQ)</span>
-                            </div>
-                            <div class="flex justify-between text-slate-400">
-                                <span>PACKET LOSS RESILIENCE:</span>
-                                <span class="text-cyan-400">FEC 35% Redundancy</span>
-                            </div>
-                            <div class="flex justify-between text-slate-400">
-                                <span>TARGET CHANNEL:</span>
-                                <span class="text-purple-400">HF / VHF Tactical Link</span>
-                            </div>
-                        </div>
-
-                        <!-- Live Waveform Mini Preview -->
-                        <div class="bg-darkBg p-3 rounded-lg border border-slate-800">
-                            <div class="flex justify-between mb-2 text-[10px] text-slate-400">
-                                <span>LIVE FREQ SPECTRUM</span>
-                                <span class="text-cyan-400">2.4 KBPS STREAM</span>
-                            </div>
-                            <div id="mini-waveform" class="h-16 flex items-end gap-1 justify-between px-1">
-                                <!-- Dynamically generated bars via JS -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center justify-between text-[11px] text-slate-400 pt-2">
-                        <span>Encrypted Mesh: OK</span>
-                        <span class="text-cyan-400 font-mono">SIH2026-DEF-9021</span>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </section>
-
-    <!-- Live Telemetry Ticker Stats Bar -->
-    <div class="bg-darkBg/90 border-y border-borderSlate py-4 relative z-20">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            <div class="border-r border-slate-800/80 last:border-0">
-                <div class="text-xs text-slate-400 uppercase tracking-widest font-mono">Channel Bandwidth</div>
-                <div class="text-xl font-bold font-mono text-cyan-400 mt-1">1.2 - 4.8 kbps</div>
-            </div>
-            <div class="border-r border-slate-800/80 last:border-0">
-                <div class="text-xs text-slate-400 uppercase tracking-widest font-mono">Perceptual MOS Score</div>
-                <div class="text-xl font-bold font-mono text-emerald-400 mt-1">4.21 / 5.0</div>
-            </div>
-            <div class="border-r border-slate-800/80 last:border-0">
-                <div class="text-xs text-slate-400 uppercase tracking-widest font-mono">Multilingual Dialects</div>
-                <div class="text-xl font-bold font-mono text-purple-400 mt-1">12+ Indic Languages</div>
-            </div>
-            <div>
-                <div class="text-xs text-slate-400 uppercase tracking-widest font-mono">Packet Loss Tolerance</div>
-                <div class="text-xl font-bold font-mono text-amber-400 mt-1">Up to 40% FEC</div>
-            </div>
-        </div>
+    <div class="info">
+      AI-powered offline communication using<br>
+      local device-to-device connectivity.
     </div>
 
-    <!-- Problem Statement & Executive Summary Section -->
-    <section id="overview" class="py-24 relative">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
-           
-            <div class="text-center max-w-3xl mx-auto space-y-4">
-                <div class="inline-block px-3 py-1 rounded-full bg-purple-950/60 border border-purple-500/30 text-purple-400 text-xs font-mono">
-                    EXECUTIVE SUMMARY & CHALLENGE
-                </div>
-                <h2 class="text-3xl sm:text-4xl font-bold font-sans">
-                    Bridging Communication Gaps in <span class="text-cyan-400">Extreme Tactical Terrains</span>
-                </h2>
-                <p class="text-slate-300 text-base sm:text-lg">
-                    Conventional tactical radios struggle with severe bandwidth constraints (1.2 - 4.8 kbps), heavy atmospheric noise, and India's vast linguistic diversity. iTantra solves this via edge neural vocoding and multilingual STT/TTS synthesis.
-                </p>
-            </div>
-
-            <!-- 3 Glassmorphism Mission Cards -->
-            <div class="grid md:grid-cols-3 gap-8">
-                <!-- Card 1 -->
-                <div class="glass-panel p-8 rounded-2xl border border-slate-700/80 hover:border-cyan-500/50 transition-all duration-300 group">
-                    <div class="w-14 h-14 rounded-xl bg-cyan-950/80 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-2xl mb-6 group-hover:scale-110 transition-transform">
-                        <i class="fa-solid fa-gauge-low"></i>
-                    </div>
-                    <h3 class="text-xl font-bold font-sans mb-3 text-white">Ultra-Low Bandwidth Link</h3>
-                    <p class="text-slate-400 text-sm leading-relaxed">
-                        Operating seamlessly on constrained HF/VHF and satellite links down to 1.2 kbps by transmitting high-efficiency semantic and neural vector features instead of raw audio.
-                    </p>
-                </div>
-
-                <!-- Card 2 -->
-                <div class="glass-panel p-8 rounded-2xl border border-slate-700/80 hover:border-purple-500/50 transition-all duration-300 group">
-                    <div class="w-14 h-14 rounded-xl bg-purple-950/80 border border-purple-500/30 flex items-center justify-center text-purple-400 text-2xl mb-6 group-hover:scale-110 transition-transform">
-                        <i class="fa-solid fa-language"></i>
-                    </div>
-                    <h3 class="text-xl font-bold font-sans mb-3 text-white">Multilingual Indic Support</h3>
-                    <p class="text-slate-400 text-sm leading-relaxed">
-                        Native real-time translation and voice synthesis supporting Hindi, Marathi, Tamil, Telugu, Punjabi, and other regional dialects for seamless inter-unit coordination.
-                    </p>
-                </div>
-
-                <!-- Card 3 -->
-                <div class="glass-panel p-8 rounded-2xl border border-slate-700/80 hover:border-emerald-500/50 transition-all duration-300 group">
-                    <div class="w-14 h-14 rounded-xl bg-emerald-950/80 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-2xl mb-6 group-hover:scale-110 transition-transform">
-                        <i class="fa-solid fa-shield-virus"></i>
-                    </div>
-                    <h3 class="text-xl font-bold font-sans mb-3 text-white">High Noise Resilience</h3>
-                    <p class="text-slate-400 text-sm leading-relaxed">
-                        Built-in Forward Error Correction (FEC) and neural noise suppression that reconstructs crystal-clear speech even amidst heavy combat static and jamming.
-                    </p>
-                </div>
-            </div>
-
-        </div>
-    </section>
-
-    <!-- Interactive Neural Codec & Transceiver Sandbox (Live Demo) -->
-    <section id="sandbox" class="py-24 bg-darkBg/90 relative border-t border-borderSlate">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-           
-            <div class="text-center max-w-3xl mx-auto space-y-4">
-                <div class="inline-block px-3 py-1 rounded-full bg-cyan-950/60 border border-cyan-500/30 text-cyan-400 text-xs font-mono">
-                    LIVE DEMO SANDBOX
-                </div>
-                <h2 class="text-3xl sm:text-4xl font-bold font-sans">
-                    Neural Codec & Transceiver Playground
-                </h2>
-                <p class="text-slate-300 text-sm sm:text-base">
-                    Test tactical messages across different bitrates, observe live waveform compression, and simulate voice synthesis in real-time.
-                </p>
-            </div>
-
-            <!-- Sandbox Interface Container -->
-            <div class="glass-panel rounded-3xl p-6 sm:p-8 border border-slate-700/80 grid lg:grid-cols-12 gap-8">
-               
-                <!-- Left Control Panel -->
-                <div class="lg:col-span-6 space-y-6">
-                    <h3 class="text-lg font-bold font-mono text-cyan-300 flex items-center gap-2">
-                        <i class="fa-solid fa-sliders"></i> Tactical Transmission Controls
-                    </h3>
-
-                    <!-- Message Preset Selection -->
-                    <div class="space-y-2">
-                        <label class="text-xs font-mono text-slate-400 uppercase">Select Sample Tactical Message:</label>
-                        <div class="grid grid-cols-2 gap-2">
-                            <button onclick="setPresetMsg(0)" class="preset-btn px-3 py-2 rounded-lg bg-cyan-950/40 border border-cyan-500/40 text-cyan-300 text-xs text-left font-mono hover:bg-cyan-900/40 transition-colors">
-                                [Hindi] शत्रु गतिशीलता की रिपोर्ट...
-                            </button>
-                            <button onclick="setPresetMsg(1)" class="preset-btn px-3 py-2 rounded-lg bg-slate-800/80 border border-slate-700 text-slate-300 text-xs text-left font-mono hover:bg-slate-700 transition-colors">
-                                [Marathi] टेहळणी पथक सुरक्षित...
-                            </button>
-                            <button onclick="setPresetMsg(2)" class="preset-btn px-3 py-2 rounded-lg bg-slate-800/80 border border-slate-700 text-slate-300 text-xs text-left font-mono hover:bg-slate-700 transition-colors">
-                                [English] Alpha Squad advancing to Sector 4...
-                            </button>
-                            <button onclick="setPresetMsg(3)" class="preset-btn px-3 py-2 rounded-lg bg-slate-800/80 border border-slate-700 text-slate-300 text-xs text-left font-mono hover:bg-slate-700 transition-colors">
-                                [Tamil] பின்தளம் பாதுகாப்பானது...
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Input Text Area -->
-                    <div class="space-y-2">
-                        <label class="text-xs font-mono text-slate-400 uppercase">Input / Translated Message:</label>
-                        <textarea id="sandbox-input" rows="3" class="w-full bg-darkBg border border-slate-700 rounded-xl p-4 text-slate-100 text-sm focus:outline-none focus:border-cyan-500 font-mono">शत्रु गतिविधि सेक्टर 7 में देखी गई। त्वरित प्रतिक्रिया दल तैयार है।</textarea>
-                    </div>
-
-                    <!-- Bitrate & Language Controls -->
-                    <div class="grid sm:grid-cols-2 gap-4">
-                        <div class="space-y-2">
-                            <label class="text-xs font-mono text-slate-400 uppercase">Target Bitrate:</label>
-                            <select id="bitrate-select" class="w-full bg-darkBg border border-slate-700 rounded-xl p-3 text-slate-200 text-sm font-mono focus:outline-none focus:border-cyan-500">
-                                <option value="1.2">1.2 kbps (Ultra-Low Sat / HF)</option>
-                                <option value="2.4" selected>2.4 kbps (Standard Tactical)</option>
-                                <option value="4.8">4.8 kbps (High Fidelity)</option>
-                                <option value="9.6">9.6 kbps (Wideband Link)</option>
-                            </select>
-                        </div>
-                        <div class="space-y-2">
-                            <label class="text-xs font-mono text-slate-400 uppercase">Language / Dialect:</label>
-                            <select id="lang-select" class="w-full bg-darkBg border border-slate-700 rounded-xl p-3 text-slate-200 text-sm font-mono focus:outline-none focus:border-cyan-500">
-                                <option value="hi-IN" selected>Hindi (हिन्दी)</option>
-                                <option value="mr-IN">Marathi (मराठी)</option>
-                                <option value="ta-IN">Tamil (தமிழ்)</option>
-                                <option value="te-IN">Telugu (తెలుగు)</option>
-                                <option value="en-US">English (Tactical)</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="flex flex-wrap gap-4 pt-2">
-                        <button id="transmit-btn" onclick="triggerSimulation()" class="flex-1 py-3.5 px-6 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-black font-bold text-sm tracking-wider uppercase hover:opacity-95 transition-opacity shadow-lg shadow-cyan-500/20 flex items-center justify-center space-x-2">
-                            <i class="fa-solid fa-satellite-dish"></i>
-                            <span>Encode & Transmit</span>
-                        </button>
-                        <button id="speak-btn" onclick="speakMessage()" class="py-3.5 px-6 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm tracking-wider uppercase transition-colors flex items-center justify-center space-x-2">
-                            <i class="fa-solid fa-volume-high"></i>
-                            <span>Simulate Speech</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Right Visual Analytics Panel -->
-                <div class="lg:col-span-6 space-y-6 flex flex-col justify-between bg-darkBg/60 p-6 rounded-2xl border border-slate-800">
-                    <div class="space-y-4">
-                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                            <span class="text-xs font-mono text-cyan-400 uppercase tracking-wider">Live Neural Codec Telemetry</span>
-                            <span id="transceiver-status" class="px-2 py-0.5 rounded bg-amber-950/60 border border-amber-500/30 text-amber-400 text-xs font-mono">STANDBY</span>
-                        </div>
-
-                        <!-- Real-time Canvas Waveform -->
-                        <div class="space-y-2">
-                            <div class="flex justify-between text-xs font-mono text-slate-400">
-                                <span>RECONSTRUCTED AUDIO WAVEFORM</span>
-                                <span id="stat-latency">Latency: ~110ms</span>
-                            </div>
-                            <div class="h-32 bg-darkBg rounded-xl border border-slate-800 relative overflow-hidden flex items-center justify-center">
-                                <canvas id="waveform-canvas" class="w-full h-full"></canvas>
-                                <div id="canvas-overlay-text" class="absolute inset-0 flex items-center justify-center text-xs font-mono text-slate-500 bg-darkBg/40 backdrop-blur-[2px]">
-                                    Click "Encode & Transmit" to run neural simulation
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Metrics Grid -->
-                        <div class="grid grid-cols-3 gap-4 font-mono">
-                            <div class="bg-darkBg p-3 rounded-xl border border-slate-800 text-center">
-                                <div class="text-[10px] text-slate-400">COMPRESSION</div>
-                                <div id="stat-compression" class="text-lg font-bold text-cyan-400 mt-1">42:1</div>
-                            </div>
-                            <div class="bg-darkBg p-3 rounded-xl border border-slate-800 text-center">
-                                <div class="text-[10px] text-slate-400">PERCEPTUAL MOS</div>
-                                <div id="stat-mos" class="text-lg font-bold text-emerald-400 mt-1">4.2 / 5.0</div>
-                            </div>
-                            <div class="bg-darkBg p-3 rounded-xl border border-slate-800 text-center">
-                                <div class="text-[10px] text-slate-400">PACKET RECOV</div>
-                                <div id="stat-fec" class="text-lg font-bold text-purple-400 mt-1">99.4%</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Terminal Output Log -->
-                    <div class="bg-black/80 rounded-xl p-3 border border-slate-800 font-mono text-[11px] text-slate-400 space-y-1">
-                        <div class="text-cyan-400">> iTantra Neural Core v2.4 initialized.</div>
-                        <div id="terminal-log">> Ready for tactical transmission sequence...</div>
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-    </section>
-
-    <!-- Tactical Radio Link & Spectrum Analyzer -->
-    <section id="spectrum" class="py-24 relative">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-           
-            <div class="text-center max-w-3xl mx-auto space-y-4">
-                <div class="inline-block px-3 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 text-xs font-mono">
-                    SPECTRUM & LINK ADAPTATION
-                </div>
-                <h2 class="text-3xl sm:text-4xl font-bold font-sans">
-                    Tactical Channel & Noise Resilience Analyzer
-                </h2>
-                <p class="text-slate-300 text-base">
-                    Simulate adverse atmospheric conditions, jamming, and variable SNR environments to test real-time Forward Error Correction (FEC) adaptation.
-                </p>
-            </div>
-
-            <!-- Spectrum Analyzer Panel -->
-            <div class="glass-panel p-8 rounded-3xl border border-slate-700/80 grid lg:grid-cols-12 gap-8 items-center">
-               
-                <!-- Left Sliders & Controls -->
-                <div class="lg:col-span-5 space-y-6">
-                    <h3 class="text-lg font-bold font-mono text-emerald-400 flex items-center gap-2">
-                        <i class="fa-solid fa-wave-square"></i> Environment Parameters
-                    </h3>
-
-                    <!-- SNR Slider -->
-                    <div class="space-y-2">
-                        <div class="flex justify-between text-xs font-mono">
-                            <span class="text-slate-400">Signal-to-Noise Ratio (SNR):</span>
-                            <span id="snr-val" class="text-emerald-400 font-bold">+6 dB (Moderate)</span>
-                        </div>
-                        <input type="range" id="snr-slider" min="-10" max="25" value="6" step="1" oninput="updateSpectrumSimulation()" class="w-full accent-emerald-500 bg-slate-800 h-2 rounded-lg cursor-pointer">
-                    </div>
-
-                    <!-- Jamming / Interference Slider -->
-                    <div class="space-y-2">
-                        <div class="flex justify-between text-xs font-mono">
-                            <span class="text-slate-400">Electromagnetic Jamming / Noise:</span>
-                            <span id="jamming-val" class="text-purple-400 font-bold">20%</span>
-                        </div>
-                        <input type="range" id="jamming-slider" min="0" max="90" value="20" step="5" oninput="updateSpectrumSimulation()" class="w-full accent-purple-500 bg-slate-800 h-2 rounded-lg cursor-pointer">
-                    </div>
-
-                    <!-- FEC Redundancy Toggle -->
-                    <div class="bg-darkBg p-4 rounded-xl border border-slate-800 space-y-3">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-mono text-slate-300">Adaptive FEC Redundancy:</span>
-                            <span id="fec-status-badge" class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 text-xs font-mono">AUTO (35%)</span>
-                        </div>
-                        <p class="text-xs text-slate-400">
-                            Dynamic convolutional coding scales automatically based on channel degradation to ensure 0% packet loss for mission-critical orders.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Right Visual Spectrum Graph -->
-                <div class="lg:col-span-7 bg-darkBg/80 p-6 rounded-2xl border border-slate-800 space-y-4">
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                        <span class="text-xs font-mono text-slate-400">REAL-TIME RF SPECTRUM MONITOR</span>
-                        <span id="link-health" class="text-xs font-mono text-emerald-400 font-bold">LINK HEALTH: STABLE (98.2%)</span>
-                    </div>
-
-                    <!-- Canvas for Spectrum Graph -->
-                    <div class="h-48 relative flex items-center justify-center overflow-hidden rounded-xl bg-black/60 border border-slate-900">
-                        <canvas id="spectrum-canvas" class="w-full h-full"></canvas>
-                    </div>
-
-                    <div class="grid grid-cols-3 gap-4 text-center font-mono text-xs">
-                        <div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-800">
-                            <span class="text-slate-500 block">THROUGHPUT</span>
-                            <span id="spec-throughput" class="text-cyan-400 font-bold text-sm">2.4 kbps</span>
-                        </div>
-                        <div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-800">
-                            <span class="text-slate-500 block">PACKET LOSS</span>
-                            <span id="spec-loss" class="text-amber-400 font-bold text-sm">0.2%</span>
-                        </div>
-                        <div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-800">
-                            <span class="text-slate-500 block">BIT ERROR RATE</span>
-                            <span id="spec-ber" class="text-emerald-400 font-bold text-sm">1.4e-5</span>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-    </section>
-
-    <!-- Core Architecture & Pipeline (6 Interactive Modules) -->
-    <section id="architecture" class="py-24 bg-darkBg/90 relative border-t border-borderSlate">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-           
-            <div class="text-center max-w-3xl mx-auto space-y-4">
-                <div class="inline-block px-3 py-1 rounded-full bg-purple-950/60 border border-purple-500/30 text-purple-400 text-xs font-mono">
-                    SYSTEM ARCHITECTURE
-                </div>
-                <h2 class="text-3xl sm:text-4xl font-bold font-sans">
-                    6-Tier End-to-End Neural Pipeline
-                </h2>
-                <p class="text-slate-300 text-base">
-                    Click each modular stage below to inspect detailed specifications, latency metrics, and algorithmic architecture.
-                </p>
-            </div>
-
-            <!-- Architecture Module Grid -->
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-               
-                <!-- Module 1 -->
-                <div onclick="openArchModal(0)" class="glass-panel p-6 rounded-2xl border border-slate-700/80 hover:border-cyan-500/60 transition-all cursor-pointer group space-y-4">
-                    <div class="flex items-center justify-between">
-                        <span class="w-10 h-10 rounded-xl bg-cyan-950 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-mono font-bold">01</span>
-                        <span class="text-xs font-mono text-cyan-400 group-hover:underline">Inspect Code &rarr;</span>
-                    </div>
-                    <h3 class="text-lg font-bold font-sans text-white">Neural Speech Codec (VQ)</h3>
-                    <p class="text-slate-400 text-xs leading-relaxed">
-                        Vector Quantized Variational Autoencoders (VQ-VAE) compressing high-sample audio into ultra-compact discrete tokens at 1.2 kbps.
-                    </p>
-                </div>
-
-                <!-- Module 2 -->
-                <div onclick="openArchModal(1)" class="glass-panel p-6 rounded-2xl border border-slate-700/80 hover:border-purple-500/60 transition-all cursor-pointer group space-y-4">
-                    <div class="flex items-center justify-between">
-                        <span class="w-10 h-10 rounded-xl bg-purple-950 border border-purple-500/30 flex items-center justify-center text-purple-400 font-mono font-bold">02</span>
-                        <span class="text-xs font-mono text-purple-400 group-hover:underline">Inspect Code &rarr;</span>
-                    </div>
-                    <h3 class="text-lg font-bold font-sans text-white">Multilingual Indic ASR (STT)</h3>
-                    <p class="text-slate-400 text-xs leading-relaxed">
-                        Whisper-quantized Conformer-CTC models optimized for noisy field speech across 12+ Indic languages and regional dialects.
-                    </p>
-                </div>
-
-                <!-- Module 3 -->
-                <div onclick="openArchModal(2)" class="glass-panel p-6 rounded-2xl border border-slate-700/80 hover:border-emerald-500/60 transition-all cursor-pointer group space-y-4">
-                    <div class="flex items-center justify-between">
-                        <span class="w-10 h-10 rounded-xl bg-emerald-950 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-mono font-bold">03</span>
-                        <span class="text-xs font-mono text-emerald-400 group-hover:underline">Inspect Code &rarr;</span>
-                    </div>
-                    <h3 class="text-lg font-bold font-sans text-white">Transformer Neural TTS</h3>
-                    <p class="text-slate-400 text-xs leading-relaxed">
-                        FastSpeech2 + HiFi-GAN lightweight vocoder generating natural, intelligible speech on edge hardware with zero cloud dependency.
-                    </p>
-                </div>
-
-                <!-- Module 4 -->
-                <div onclick="openArchModal(3)" class="glass-panel p-6 rounded-2xl border border-slate-700/80 hover:border-amber-500/60 transition-all cursor-pointer group space-y-4">
-                    <div class="flex items-center justify-between">
-                        <span class="w-10 h-10 rounded-xl bg-amber-950 border border-amber-500/30 flex items-center justify-center text-amber-400 font-mono font-bold">04</span>
-                        <span class="text-xs font-mono text-amber-400 group-hover:underline">Inspect Code &rarr;</span>
-                    </div>
-                    <h3 class="text-lg font-bold font-sans text-white">Radio Access Adaptation Layer</h3>
-                    <p class="text-slate-400 text-xs leading-relaxed">
-                        Cross-layer protocol optimizing packet payloads for bursty HF/VHF channels with intelligent retransmission and FEC interleaving.
-                    </p>
-                </div>
-
-                <!-- Module 5 -->
-                <div onclick="openArchModal(4)" class="glass-panel p-6 rounded-2xl border border-slate-700/80 hover:border-blue-500/60 transition-all cursor-pointer group space-y-4">
-                    <div class="flex items-center justify-between">
-                        <span class="w-10 h-10 rounded-xl bg-blue-950 border border-blue-500/30 flex items-center justify-center text-blue-400 font-mono font-bold">05</span>
-                        <span class="text-xs font-mono text-blue-400 group-hover:underline">Inspect Code &rarr;</span>
-                    </div>
-                    <h3 class="text-lg font-bold font-sans text-white">Edge AI Quantization (INT8)</h3>
-                    <p class="text-slate-400 text-xs leading-relaxed">
-                        Running entirely on low-power tactical edge processors (ARM Cortex-M / FPGA) with &lt;2W power consumption profile.
-                    </p>
-                </div>
-
-                <!-- Module 6 -->
-                <div onclick="openArchModal(5)" class="glass-panel p-6 rounded-2xl border border-slate-700/80 hover:border-rose-500/60 transition-all cursor-pointer group space-y-4">
-                    <div class="flex items-center justify-between">
-                        <span class="w-10 h-10 rounded-xl bg-rose-950 border border-rose-500/30 flex items-center justify-center text-rose-400 font-mono font-bold">06</span>
-                        <span class="text-xs font-mono text-rose-400 group-hover:underline">Inspect Code &rarr;</span>
-                    </div>
-                    <h3 class="text-lg font-bold font-sans text-white">Quantum-Resistant Encryption</h3>
-                    <p class="text-slate-400 text-xs leading-relaxed">
-                        Post-quantum lattice-based cryptography securing all transmitted speech tokens against interception and quantum decryption attacks.
-                    </p>
-                </div>
-
-            </div>
-
-        </div>
-    </section>
-
-    <!-- Deployment Scenarios & Use Cases -->
-    <section id="scenarios" class="py-24 relative">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-           
-            <div class="text-center max-w-3xl mx-auto space-y-4">
-                <div class="inline-block px-3 py-1 rounded-full bg-cyan-950/60 border border-cyan-500/30 text-cyan-400 text-xs font-mono">
-                    OPERATIONAL DEPLOYMENTS
-                </div>
-                <h2 class="text-3xl sm:text-4xl font-bold font-sans">
-                    Designed for Mission-Critical Scenarios
-                </h2>
-                <p class="text-slate-300 text-base">
-                    Engineered specifically for the rigorous demands of Indian Armed Forces, paramilitary units, and remote disaster response teams.
-                </p>
-            </div>
-
-            <!-- Scenario Cards Grid -->
-            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-               
-                <!-- Scenario 1 -->
-                <div class="glass-panel p-6 rounded-2xl border border-slate-700/80 space-y-4 hover:border-cyan-500/50 transition-colors">
-                    <div class="w-12 h-12 rounded-xl bg-cyan-950 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-xl">
-                        <i class="fa-solid fa-person-rifle"></i>
-                    </div>
-                    <h3 class="text-lg font-bold font-sans text-white">Tactical Combat Radio</h3>
-                    <p class="text-slate-400 text-xs leading-relaxed">
-                        Enabling infantry platoons to exchange crystal-clear tactical voice orders over rugged mountain terrain where cellular and satellite coverage is non-existent.
-                    </p>
-                </div>
-
-                <!-- Scenario 2 -->
-                <div class="glass-panel p-6 rounded-2xl border border-slate-700/80 space-y-4 hover:border-purple-500/50 transition-colors">
-                    <div class="w-12 h-12 rounded-xl bg-purple-950 border border-purple-500/30 flex items-center justify-center text-purple-400 text-xl">
-                        <i class="fa-solid fa-satellite"></i>
-                    </div>
-                    <h3 class="text-lg font-bold font-sans text-white">LEO Satellite Links</h3>
-                    <p class="text-slate-400 text-xs leading-relaxed">
-                        Optimizing narrowband satellite transponders to support 10x concurrent voice channels without bandwidth congestion during high-priority operations.
-                    </p>
-                </div>
-
-                <!-- Scenario 3 -->
-                <div class="glass-panel p-6 rounded-2xl border border-slate-700/80 space-y-4 hover:border-emerald-500/50 transition-colors">
-                    <div class="w-12 h-12 rounded-xl bg-emerald-950 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-xl">
-                        <i class="fa-solid fa-house-chimney-medical"></i>
-                    </div>
-                    <h3 class="text-lg font-bold font-sans text-white">Disaster & Border Relief</h3>
-                    <p class="text-slate-400 text-xs leading-relaxed">
-                        Deployable backpack transceiver nodes for NDRF and remote border posts to bridge multi-state linguistic barriers instantaneously during rescue missions.
-                    </p>
-                </div>
-
-                <!-- Scenario 4 -->
-                <div class="glass-panel p-6 rounded-2xl border border-slate-700/80 space-y-4 hover:border-amber-500/50 transition-colors">
-                    <div class="w-12 h-12 rounded-xl bg-amber-950 border border-amber-500/30 flex items-center justify-center text-amber-400 text-xl">
-                        <i class="fa-solid fa-shield-halved"></i>
-                    </div>
-                    <h3 class="text-lg font-bold font-sans text-white">Agniveer Field Ops</h3>
-                    <p class="text-slate-400 text-xs leading-relaxed">
-                        Lightweight, ruggedized handheld terminals equipped with voice-to-text quick prompts and instant regional translation for joint multi-regiment exercises.
-                    </p>
-                </div>
-
-            </div>
-
-        </div>
-    </section>
-
-    <!-- Interactive Roadmap & Hackathon Milestones -->
-    <section id="roadmap" class="py-24 bg-darkBg/90 relative border-t border-borderSlate">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-           
-            <div class="text-center max-w-3xl mx-auto space-y-4">
-                <div class="inline-block px-3 py-1 rounded-full bg-cyan-950/60 border border-cyan-500/30 text-cyan-400 text-xs font-mono">
-                    PROJECT TIMELINE
-                </div>
-                <h2 class="text-3xl sm:text-4xl font-bold font-sans">
-                    Development Roadmap & SIH 2026 Milestones
-                </h2>
-                <p class="text-slate-300 text-base">
-                    From foundational neural codec research to field trials with defense partners.
-                </p>
-            </div>
-
-            <!-- Timeline Grid -->
-            <div class="grid md:grid-cols-4 gap-6">
-               
-                <div class="glass-panel p-6 rounded-2xl border border-cyan-500/40 relative space-y-3">
-                    <span class="text-xs font-mono text-cyan-400 font-bold">PHASE 1 • Q1 2026</span>
-                    <h3 class="text-lg font-bold font-sans text-white">Algorithm & VQ Codec</h3>
-                    <p class="text-slate-400 text-xs leading-relaxed">
-                        Core neural vector quantization design achieving stable speech compression down to 1.2 kbps with 4.0+ MOS score.
-                    </p>
-                    <div class="absolute -top-3 right-6 w-6 h-6 rounded-full bg-cyan-500 text-black text-xs font-bold flex items-center justify-center">✓</div>
-                </div>
-
-                <div class="glass-panel p-6 rounded-2xl border border-cyan-500/40 relative space-y-3">
-                    <span class="text-xs font-mono text-cyan-400 font-bold">PHASE 2 • Q2 2026</span>
-                    <h3 class="text-lg font-bold font-sans text-white">Multilingual Indic ASR</h3>
-                    <p class="text-slate-400 text-xs leading-relaxed">
-                        Integration of 12+ Indic language STT models and FastSpeech2 synthesis optimized for noisy combat environments.
-                    </p>
-                    <div class="absolute -top-3 right-6 w-6 h-6 rounded-full bg-cyan-500 text-black text-xs font-bold flex items-center justify-center">✓</div>
-                </div>
-
-                <div class="glass-panel p-6 rounded-2xl border border-purple-500/40 relative space-y-3">
-                    <span class="text-xs font-mono text-purple-400 font-bold">PHASE 3 • Q3 2026 (CURRENT)</span>
-                    <h3 class="text-lg font-bold font-sans text-white">Hardware Edge Porting</h3>
-                    <p class="text-slate-400 text-xs leading-relaxed">
-                        Porting INT8 quantized models onto ARM Cortex-M and SDR FPGA boards for field testing and SIH 2026 evaluation.
-                    </p>
-                    <div class="absolute -top-3 right-6 w-6 h-6 rounded-full bg-purple-500 text-white text-xs font-bold flex items-center justify-center animate-pulse">●</div>
-                </div>
-
-                <div class="glass-panel p-6 rounded-2xl border border-slate-700 relative space-y-3 opacity-80">
-                    <span class="text-xs font-mono text-slate-400 font-bold">PHASE 4 • Q4 2026</span>
-                    <h3 class="text-lg font-bold font-sans text-white">Field Trials & Deployment</h3>
-                    <p class="text-slate-400 text-xs leading-relaxed">
-                        Live trials with high-altitude border posts and disaster relief units for final hardening and protocol certification.
-                    </p>
-                    <div class="absolute -top-3 right-6 w-6 h-6 rounded-full bg-slate-700 text-slate-400 text-xs font-bold flex items-center justify-center">○</div>
-                </div>
-
-            </div>
-
-        </div>
-    </section>
-
-    <!-- Contact & Collaboration Section -->
-    <section class="py-24 relative">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-           
-            <div class="text-center space-y-4">
-                <div class="inline-block px-3 py-1 rounded-full bg-cyan-950/60 border border-cyan-500/30 text-cyan-400 text-xs font-mono">
-                    COLLABORATION & INQUIRIES
-                </div>
-                <h2 class="text-3xl sm:text-4xl font-bold font-sans">
-                    Connect with the iTantra Team
-                </h2>
-                <p class="text-slate-300 text-base">
-                    Interested in field testing, defense tech integration, or research collaboration? Send us a secure message.
-                </p>
-            </div>
-
-            <!-- Glassmorphism Contact Form -->
-            <div class="glass-panel p-8 sm:p-10 rounded-3xl border border-slate-700/80 shadow-2xl relative overflow-hidden">
-                <div id="contact-success" class="hidden absolute inset-0 bg-darkBg/95 z-20 flex flex-col items-center justify-center space-y-4 p-6 text-center">
-                    <div class="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500 text-emerald-400 flex items-center justify-center text-3xl">
-                        <i class="fa-solid fa-check"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold font-sans text-white">Transmission Received Securely</h3>
-                    <p class="text-slate-400 text-sm max-w-md">
-                        Your encrypted query has been logged to the iTantra coordination server. Our team will get back to you shortly.
-                    </p>
-                    <button onclick="resetContactForm()" class="px-6 py-2 rounded-xl bg-cyan-500 text-black font-bold text-xs uppercase tracking-wider">
-                        Send Another Message
-                    </button>
-                </div>
-
-                <form id="contact-form" onsubmit="handleContactSubmit(event)" class="space-y-6 relative z-10">
-                    <div class="grid sm:grid-cols-2 gap-6">
-                        <div class="space-y-2">
-                            <label class="text-xs font-mono text-slate-400 uppercase">Your Name / Call Sign:</label>
-                            <input type="text" required placeholder="e.g. Capt. Vikram Singh" class="w-full bg-darkBg border border-slate-700 rounded-xl p-3.5 text-slate-100 text-sm font-mono focus:outline-none focus:border-cyan-500">
-                        </div>
-                        <div class="space-y-2">
-                            <label class="text-xs font-mono text-slate-400 uppercase">Organization / Unit:</label>
-                            <input type="text" required placeholder="e.g. Defense R&D / SIH Team" class="w-full bg-darkBg border border-slate-700 rounded-xl p-3.5 text-slate-100 text-sm font-mono focus:outline-none focus:border-cyan-500">
-                        </div>
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-xs font-mono text-slate-400 uppercase">Secure Email / Contact Node:</label>
-                        <input type="email" required placeholder="name@domain.mil" class="w-full bg-darkBg border border-slate-700 rounded-xl p-3.5 text-slate-100 text-sm font-mono focus:outline-none focus:border-cyan-500">
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-xs font-mono text-slate-400 uppercase">Message / Collaboration Proposal:</label>
-                        <textarea required rows="4" placeholder="Enter your message regarding iTantra neural transceiver deployment..." class="w-full bg-darkBg border border-slate-700 rounded-xl p-3.5 text-slate-100 text-sm font-mono focus:outline-none focus:border-cyan-500"></textarea>
-                    </div>
-                    <button type="submit" class="w-full py-4 rounded-xl bg-gradient-to-r from-cyan-500 via-teal-500 to-blue-600 text-black font-bold text-sm tracking-wider uppercase hover:opacity-95 transition-opacity shadow-lg shadow-cyan-500/25">
-                        Transmit Secure Inquiry
-                    </button>
-                </form>
-            </div>
-
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="bg-darkBg border-t border-borderSlate py-12 text-slate-400 text-xs font-mono">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-4 gap-8 mb-8">
-            <div class="space-y-3 md:col-span-2">
-                <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-purple-600 p-0.5">
-                        <div class="w-full h-full bg-darkBg rounded-[6px] flex items-center justify-center">
-                            <i class="fa-solid fa-tower-broadcast text-cyan-400 text-sm"></i>
-                        </div>
-                    </div>
-                    <span class="text-lg font-bold font-mono text-white">iTantra • Neural Transceiver</span>
-                </div>
-                <p class="text-slate-400 text-xs leading-relaxed max-w-sm">
-                    Indian Multilingual TTS & STT Aided Neural Transceiver Radio Access for ultra-low bitrate tactical links. Smart India Hackathon 2026 Defense & Security submission.
-                </p>
-            </div>
-            <div class="space-y-2">
-                <span class="text-slate-200 font-bold uppercase tracking-wider block mb-3">Quick Links</span>
-                <a href="#overview" class="block hover:text-cyan-400 transition-colors">Overview</a>
-                <a href="#sandbox" class="block hover:text-cyan-400 transition-colors">Neural Codec Sandbox</a>
-                <a href="#spectrum" class="block hover:text-cyan-400 transition-colors">Spectrum Analyzer</a>
-                <a href="#architecture" class="block hover:text-cyan-400 transition-colors">System Architecture</a>
-            </div>
-            <div class="space-y-2">
-                <span class="text-slate-200 font-bold uppercase tracking-wider block mb-3">System Node Status</span>
-                <div class="flex items-center space-x-2 text-emerald-400">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span>Node #704 Operational</span>
-                </div>
-                <div class="text-[11px] text-slate-500 pt-1">
-                    Encryption: AES-256 + PQ Lattice<br>
-                    Bandwidth Profile: 2.4 kbps Nominal
-                </div>
-            </div>
-        </div>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between text-slate-500">
-            <span>&copy; 2026 iTantra Project Team. Smart India Hackathon 2026. All rights reserved.</span>
-            <span class="mt-2 sm:mt-0 text-cyan-400">Secure Node ID: 9021-SIH-DEF</span>
-        </div>
-    </footer>
-
-    <!-- Architecture Modal -->
-    <div id="arch-modal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="glass-panel max-w-2xl w-full p-6 sm:p-8 rounded-3xl border border-slate-700 space-y-6 relative">
-            <button onclick="closeArchModal()" class="absolute top-6 right-6 text-slate-400 hover:text-white text-xl">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-            <div class="space-y-2">
-                <span id="modal-tag" class="text-xs font-mono text-cyan-400 uppercase tracking-widest">MODULE 01 SPECIFICATION</span>
-                <h3 id="modal-title" class="text-2xl font-bold font-sans text-white">Neural Speech Codec (VQ)</h3>
-            </div>
-            <p id="modal-desc" class="text-slate-300 text-sm leading-relaxed">
-                Detailed architecture description loading...
-            </p>
-            <div class="space-y-2">
-                <span class="text-xs font-mono text-slate-400 uppercase">Algorithmic Pipeline Snippet:</span>
-                <pre class="bg-darkBg p-4 rounded-xl border border-slate-800 text-xs font-mono text-cyan-300 overflow-x-auto"><code id="modal-code">// Codec pipeline configuration...</code></pre>
-            </div>
-            <div class="flex justify-end pt-2">
-                <button onclick="closeArchModal()" class="px-6 py-2.5 rounded-xl bg-cyan-500 text-black font-bold text-xs uppercase tracking-wider">
-                    Close Specification
-                </button>
-            </div>
-        </div>
+    <div class="footer">
+      iTantra • Innovation for Connected Communities
     </div>
 
-    <!-- JavaScript Application Logic & Three.js Simulation -->
-    <script>
-        // Three.js Hero 3D Background Setup
-        let scene, camera, renderer, neuralCore, particles;
-       
-        function initThreeHero() {
-            const container = document.getElementById('hero-canvas-container');
-            if (!container) return;
+  </div>
 
-            scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.z = 35;
-
-            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            container.appendChild(renderer.domElement);
-
-            // Neural Core Icosahedron with wireframe
-            const geometry = new THREE.IcosahedronGeometry(12, 2);
-            const material = new THREE.MeshBasicMaterial({
-                color: 0x06b6d4,
-                wireframe: true,
-                transparent: true,
-                opacity: 0.25
-            });
-            neuralCore = new THREE.Mesh(geometry, material);
-            scene.add(neuralCore);
-
-            // Inner glowing sphere
-            const innerGeo = new THREE.SphereGeometry(7, 32, 32);
-            const innerMat = new THREE.MeshBasicMaterial({
-                color: 0x8b5cf6,
-                transparent: true,
-                opacity: 0.15
-            });
-            const innerMesh = new THREE.Mesh(innerGeo, innerMat);
-            scene.add(innerMesh);
-
-            // Orbital Rings
-            const ringGeo1 = new THREE.TorusGeometry(18, 0.2, 16, 100);
-            const ringMat1 = new THREE.MeshBasicMaterial({ color: 0x06b6d4, transparent: true, opacity: 0.4 });
-            const ring1 = new THREE.Mesh(ringGeo1, ringMat1);
-            ring1.rotation.x = Math.PI / 3;
-            scene.add(ring1);
-
-            const ringGeo2 = new THREE.TorusGeometry(22, 0.2, 16, 100);
-            const ringMat2 = new THREE.MeshBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.3 });
-            const ring2 = new THREE.Mesh(ringGeo2, ringMat2);
-            ring2.rotation.y = Math.PI / 4;
-            scene.add(ring2);
-
-            // Particle Field
-            const particleCount = 400;
-            const particleGeo = new THREE.BufferGeometry();
-            const posArray = new Float32Array(particleCount * 3);
-
-            for(let i = 0; i < particleCount * 3; i++) {
-                posArray[i] = (Math.random() - 0.5) * 80;
-            }
-
-            particleGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-            const particleMat = new THREE.PointsMaterial({
-                size: 0.4,
-                color: 0x06b6d4,
-                transparent: true,
-                opacity: 0.6
-            });
-            particles = new THREE.Points(particleGeo, particleMat);
-            scene.add(particles);
-
-            // Mouse movement reactivity
-            let mouseX = 0, mouseY = 0;
-            window.addEventListener('mousemove', (e) => {
-                mouseX = (e.clientX - window.innerWidth / 2) * 0.0005;
-                mouseY = (e.clientY - window.innerHeight / 2) * 0.0005;
-            });
-
-            // Animation Loop
-            function animate() {
-                requestAnimationFrame(animate);
-                neuralCore.rotation.x += 0.002 + mouseY * 0.2;
-                neuralCore.rotation.y += 0.003 + mouseX * 0.2;
-                ring1.rotation.z += 0.005;
-                ring2.rotation.z -= 0.004;
-                particles.rotation.y -= 0.001;
-                renderer.render(scene, camera);
-            }
-            animate();
-
-            window.addEventListener('resize', () => {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-            });
-        }
-
-        // Mobile menu toggle
-        document.getElementById('mobile-menu-btn').addEventListener('click', () => {
-            const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('hidden');
-        });
-
-        // Mini waveform generation in Hero
-        function initMiniWaveform() {
-            const container = document.getElementById('mini-waveform');
-            if (!container) return;
-            container.innerHTML = '';
-            for(let i=0; i<24; i++) {
-                const bar = document.createElement('div');
-                bar.className = 'w-1 bg-cyan-400 rounded-full transition-all duration-300';
-                bar.style.height = `${Math.floor(Math.random() * 80) + 15}%`;
-                bar.style.opacity = Math.random() * 0.7 + 0.3;
-                container.appendChild(bar);
-            }
-            setInterval(() => {
-                const bars = container.children;
-                for(let bar of bars) {
-                    bar.style.height = `${Math.floor(Math.random() * 80) + 15}%`;
-                }
-            }, 400);
-        }
-
-        // Preset Tactical Messages
-        const presets = [
-            "शत्रु गतिविधि सेक्टर 7 में देखी गई। त्वरित प्रतिक्रिया दल तैयार है।",
-            "टेहळणी पथक सुरक्षितपणे सेक्टर २ मध्ये पोहोचले आहे. पुढील आदेशाची प्रतीक्षा आहे.",
-            "Alpha Squad advancing to Sector 4. Establishing secure HF relay link.",
-            "பின்தளம் பாதுகாப்பானது. அவசர மருத்துவ உதவி தேவை."
-        ];
-
-        function setPresetMsg(index) {
-            document.getElementById('sandbox-input').value = presets[index];
-        }
-
-        // Sandbox Simulation Trigger
-        function triggerSimulation() {
-            const btn = document.getElementById('transmit-btn');
-            const statusBadge = document.getElementById('transceiver-status');
-            const overlay = document.getElementById('canvas-overlay-text');
-            const termLog = document.getElementById('terminal-log');
-            const bitrate = document.getElementById('bitrate-select').value;
-
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>Encoding Token Stream...</span>`;
-            statusBadge.className = "px-2 py-0.5 rounded bg-cyan-950 border border-cyan-500/30 text-cyan-400 text-xs font-mono animate-pulse";
-            statusBadge.innerText = "ENCODING";
-            overlay.innerText = "Neural Vector Quantization in progress...";
-            termLog.innerHTML = `> Compressing speech frame at ${bitrate} kbps VQ-VAE layer...`;
-
-            setTimeout(() => {
-                btn.innerHTML = `<i class="fa-solid fa-satellite-dish"></i><span>Encode & Transmit</span>`;
-                statusBadge.className = "px-2 py-0.5 rounded bg-emerald-950 border border-emerald-500/30 text-emerald-400 text-xs font-mono";
-                statusBadge.innerText = "TRANSMITTED";
-                overlay.style.display = 'none';
-                termLog.innerHTML = `> Packet transmitted successfully via HF link. FEC integrity: 99.4%. MOS: 4.21`;
-                drawWaveformCanvas();
-            }, 900);
-        }
-
-        // Web Speech API Synthesis Simulation
-        function speakMessage() {
-            const text = document.getElementById('sandbox-input').value;
-            const lang = document.getElementById('lang-select').value;
-            if ('speechSynthesis' in window) {
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = lang;
-                window.speechSynthesis.speak(utterance);
-            } else {
-                alert("Speech Synthesis not supported in this browser.");
-            }
-        }
-
-        // Waveform Canvas Rendering
-        function drawWaveformCanvas() {
-            const canvas = document.getElementById('waveform-canvas');
-            if(!canvas) return;
-            const ctx = canvas.getContext('2d');
-            canvas.width = canvas.parentElement.clientWidth;
-            canvas.height = canvas.parentElement.clientHeight;
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = '#06b6d4';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-
-            const sliceWidth = canvas.width / 100;
-            let x = 0;
-
-            for(let i = 0; i < 100; i++) {
-                const v = Math.random() * 0.6 + 0.2;
-                const y = v * canvas.height;
-                if(i === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-                x += sliceWidth;
-            }
-            ctx.lineTo(canvas.width, canvas.height / 2);
-            ctx.stroke();
-        }
-
-        // Spectrum Analyzer Simulation
-        function updateSpectrumSimulation() {
-            const snr = document.getElementById('snr-slider').value;
-            const jamming = document.getElementById('jamming-slider').value;
-
-            document.getElementById('snr-val').innerText = `${snr > 0 ? '+' : ''}${snr} dB (${snr > 10 ? 'High' : snr > 0 ? 'Moderate' : 'Low'})`;
-            document.getElementById('jamming-val').innerText = `${jamming}%`;
-
-            const specLoss = document.getElementById('spec-loss');
-            const linkHealth = document.getElementById('link-health');
-            const specThroughput = document.getElementById('spec-throughput');
-
-            let lossVal = (Math.max(0, (20 - snr) * 0.4) + (jamming * 0.05)).toFixed(1);
-            if(lossVal > 45) lossVal = 45;
-            specLoss.innerText = `${lossVal}%`;
-
-            if(lossVal < 5) {
-                linkHealth.innerText = "LINK HEALTH: STABLE (98.2%)";
-                linkHealth.className = "text-xs font-mono text-emerald-400 font-bold";
-                specThroughput.innerText = "2.4 kbps";
-            } else if(lossVal < 20) {
-                linkHealth.innerText = "LINK HEALTH: ADAPTIVE FEC (84.5%)";
-                linkHealth.className = "text-xs font-mono text-cyan-400 font-bold";
-                specThroughput.innerText = "1.8 kbps";
-            } else {
-                linkHealth.innerText = "LINK HEALTH: DEGRADED / RETRANSMITTING";
-                linkHealth.className = "text-xs font-mono text-amber-400 font-bold";
-                specThroughput.innerText = "1.2 kbps";
-            }
-
-            drawSpectrumCanvas(snr, jamming);
-        }
-
-        function drawSpectrumCanvas(snr, jamming) {
-            const canvas = document.getElementById('spectrum-canvas');
-            if(!canvas) return;
-            const ctx = canvas.getContext('2d');
-            canvas.width = canvas.parentElement.clientWidth;
-            canvas.height = canvas.parentElement.clientHeight;
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-           
-            // Draw grid lines
-            ctx.strokeStyle = '#1e293b';
-            ctx.lineWidth = 1;
-            for(let i=0; i<canvas.width; i+=40) {
-                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
-            }
-
-            // Draw RF spectrum curve
-            ctx.strokeStyle = '#10b981';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-
-            const step = canvas.width / 150;
-            let x = 0;
-            for(let i=0; i<150; i++) {
-                let noise = (Math.random() - 0.5) * (jamming * 0.04);
-                let signalPeak = Math.exp(-Math.pow(i - 75, 2) / 300) * (snr / 10);
-                let y = canvas.height / 2 - (signalPeak * 40) + noise * 30;
-                if(i === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-                x += step;
-            }
-            ctx.stroke();
-        }
-
-        // Architecture Modal Data & Logic
-        const archData = [
-            {
-                tag: "MODULE 01 SPECIFICATION",
-                title: "Neural Speech Codec (Vector Quantization)",
-                desc: "Employs RVQ-VAE (Residual Vector Quantization Variational Autoencoder) to map high-dimensional acoustic waveforms into discrete codebook tokens at compression ratios exceeding 40:1, preserving phonetic intelligibility at 1.2 - 2.4 kbps.",
-                code: "import torch\nimport torch.nn as nn\n\nclass ResidualVectorQuantizer(nn.Module):\n    def __init__(self, num_codebooks=4, codebook_size=1024, dim=256):\n        super().__init__()\n        self.codebooks = nn.ModuleList([nn.Embedding(codebook_size, dim) for _ in range(num_codebooks)])\n    \n    def forward(self, z):\n        # Quantize latent representations for ultra-low bitrate transmission\n        tokens = []\n        residual = z\n        for cb in self.codebooks:\n            # Vector quantization lookup\n            dist = torch.cdist(residual, cb.weight)\n            indices = torch.argmin(dist, dim=-1)\n            tokens.append(indices)\n        return tokens"
-            },
-            {
-                tag: "MODULE 02 SPECIFICATION",
-                title: "Multilingual Indic ASR (STT)",
-                desc: "Quantized Conformer-CTC speech recognition models trained on diverse Indian linguistic corpora, supporting Hindi, Marathi, Tamil, Telugu, and 8+ regional languages with robust noise-cancellation.",
-                code: "import whisper\n\nclass IndicASRPipeline:\n    def __init__(self):\n        self.model = whisper.load_model('base.en') # quantized int8\n    \n    def transcribe_tactical_audio(self, audio_stream, language='hi'):\n        result = self.model.transcribe(audio_stream, language=language, task='transcribe')\n        return result['text']"
-            },
-            {
-                tag: "MODULE 03 SPECIFICATION",
-                title: "Transformer Neural TTS",
-                desc: "Lightweight FastSpeech2 architecture paired with HiFi-GAN vocoder optimized to synthesize natural regional voice instructions directly on tactical edge hardware with <50ms synthesis latency.",
-                code: "class LightweightNeuralTTS:\n    def __init__(self, voice_profile='tactical_male_hi'):\n        self.profile = voice_profile\n        self.vocoder = load_hifigan_int8()\n    \n    def synthesize(self, text_tokens):\n        mel_spec = self.transformer_predictor(text_tokens)\n        audio_waveform = self.vocoder.inference(mel_spec)\n        return audio_waveform"
-            },
-            {
-                tag: "MODULE 04 SPECIFICATION",
-                title: "Radio Access Adaptation Layer",
-                desc: "Cross-layer protocol stack handling adaptive Forward Error Correction (FEC) and packet interleaving for bursty HF/VHF channels prone to severe fading and multipath interference.",
-                code: "class RadioAccessAdaptation:\n    def __init__(self, fec_rate=0.35):\n        self.fec_rate = fec_rate\n    \n    def pack_with_redundancy(self, token_stream):\n        # Apply convolutional parity bits for packet loss resilience\n        parity = self.generate_fec_parity(token_stream, self.fec_rate)\n        return {'payload': token_stream, 'fec': parity}"
-            },
-            {
-                tag: "MODULE 05 SPECIFICATION",
-                title: "Edge AI Quantization (INT8)",
-                desc: "All neural models are post-training quantized to INT8 precision, enabling full end-to-end operation on low-power ARM Cortex-M processors and FPGA tactical radios drawing under 2 Watts.",
-                code: "import torch\n\ndef quantize_model_for_edge(model):\n    model.eval()\n    quantized_model = torch.ao.quantization.quantize_dynamic(\n        model, {torch.nn.Linear}, dtype=torch.qint8\n    )\n    return quantized_model"
-            },
-            {
-                tag: "MODULE 06 SPECIFICATION",
-                title: "Quantum-Resistant Encryption",
-                desc: "Integrates lattice-based post-quantum cryptography (Kyber / Dilithium) to secure all tokenized speech streams against future quantum computing decryption attacks.",
-                code: "from pqcrypto.kem.kyber512 import generate_keypair, encrypt, decrypt\n\nclass QuantumResistantChannel:\n    def __init__(self):\n        self.public_key, self.secret_key = generate_keypair()\n    \n    def secure_packet(self, data_packet):\n        ciphertext, shared_key = encrypt(self.public_key)\n        return {'ciphertext': ciphertext, 'payload': data_packet}"
-            }
-        ];
-
-        function openArchModal(index) {
-            const data = archData[index];
-            document.getElementById('modal-tag').innerText = data.tag;
-            document.getElementById('modal-title').innerText = data.title;
-            document.getElementById('modal-desc').innerText = data.desc;
-            document.getElementById('modal-code').innerText = data.code;
-            document.getElementById('arch-modal').classList.remove('hidden');
-        }
-
-        function closeArchModal() {
-            document.getElementById('arch-modal').classList.add('hidden');
-        }
-
-        // Contact Form Handling
-        function handleContactSubmit(event) {
-            event.preventDefault();
-            document.getElementById('contact-success').classList.remove('hidden');
-        }
-
-        function resetContactForm() {
-            document.getElementById('contact-form').reset();
-            document.getElementById('contact-success').classList.add('hidden');
-        }
-
-        // Window Onload Initialization
-        window.onload = function() {
-            initThreeHero();
-            initMiniWaveform();
-            updateSpectrumSimulation();
-        };
-    </script>
 </body>
 </html>
